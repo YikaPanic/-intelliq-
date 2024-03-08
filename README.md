@@ -1,92 +1,110 @@
-# 集采场景chatbot
 
+# IntelliQ
+## 介绍
+IntelliQ 是一个开源项目，旨在提供一个基于大型语言模型（LLM）的多轮问答系统。该系统结合了先进的意图识别和词槽填充（Slot Filling）技术，致力于提升对话系统的理解深度和响应精确度。本项目为开发者社区提供了一个灵活、高效的解决方案，用于构建和优化各类对话型应用。
 
+<Strong>项目源链接：https://github.com/answerlink/IntelliQ</Strong>
 
-## Getting started
+## 特性
+1. 多轮对话管理：能够处理复杂的对话场景，支持连续多轮交互。
+2. 意图识别：准确判定用户输入的意图，支持自定义意图扩展。
+3. 词槽填充：动态识别并填充关键信息（如时间、地点、对象等）。
+4. 接口槽技术：直接与外部APIs对接，实现数据的实时获取和处理。
+5. 自适应学习：不断学习用户交互，优化回答准确性和响应速度。
+6. 易于集成：提供了详细的API文档，支持多种编程语言和平台集成。
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 针对当前集采场景下的chatbot的定制
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### 主要自定义模块：
+- scene_config\\scene_prompts.py
 
-## Add your files
+定义负责填槽的ai基本设定，角色定义和行为约束条件
+- scene_config\\scene_templates.py
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+定义具体的对话场景，通过描述让ai自动识别对应场景来触发填槽任务，引导用户完成对应场景下所有slot的填写
 
+### LLM输出处理和数据抽参与整合相关的调整
+- utils\\helpers.py
+
+```python
+当前场景下基于集采场景的json处理改进
+def extract_json_from_string(input_string):
+    try:
+        # 使用非贪婪匹配改进提取，避免截断嵌套结构
+        matches = re.findall(r'\{.*?\}', input_string, re.DOTALL)
+        valid_jsons = []
+        for match in matches:
+            try:
+                json_obj = json.loads(match)
+                valid_jsons.append(json_obj)
+            except json.JSONDecodeError:
+                # 尝试使用修复函数
+                fixed_json = fix_json(match)
+                print(f"try to fix")
+                if fixed_json:
+                    # 尝试解析修复后的JSON字符串
+                    try:
+                        fixed_json_obj = json.loads(fixed_json)
+                        valid_jsons.append(fixed_json_obj)
+                    except json.JSONDecodeError:
+                        continue  # 如果修复失败，跳过当前匹配
+    except Exception as e:
+        print(f"解析错误: {e}")
+        return []
+    return valid_jsons
+
+def fix_json(llm_output):
+    # 修复可能存在的JSON格式问题，例如替换单引号为双引号
+    fixed_output = llm_output.replace("'", '"')
+    # 尝试解析修复后的JSON字符串
+    try:
+        json_object = json.loads(fixed_output)
+        return json.dumps(json_object)  # 返回修复并解析成功的JSON字符串
+    except json.JSONDecodeError as e:
+        print(f"解析错误: {e}。在处理字符串: {fixed_output}")
+        return None
+    
 ```
-cd existing_repo
-git remote add origin http://192.168.1.7:8700/yinghao/chatbot.git
-git branch -M master
-git push -uf origin master
+
+-   针对集采清单的格式转换,生成最终well-formed的输出格式以便api调用：
+```python
+def prepare_json_data_for_api(json_data):
+    """
+    修改json_data中特定条目的value格式，准备发送给API。
+    """
+    for item in json_data:
+        if item.get("name") == "采购的内容清单":
+            current_value = item.get("value", "")
+            if isinstance(current_value, str):
+                # 预处理，为每个商品数量后插入分隔符"; "
+                preprocessed_value = re.sub(r"(\d+)(支|张|台|个|批|对|打|份|盒|箱|)", r"\1\2; ", current_value)
+                # 分割处理后的字符串
+                items_list = preprocessed_value.split("; ")
+                formatted_list = []
+                for it in items_list:
+                    if it:  # 避免空字符串
+                        # 分割物品名称和数量
+                        match = re.match(r"(.+?)(\d+)(支|张|台|个|批|对|打|份|盒|箱)", it)
+                        if match:
+                            item_name = match.group(1).strip()
+                            quantity = f"{match.group(2).strip()}{match.group(3).strip()}"  # 包括单位
+                            formatted_list.append({"item": item_name, "quantity": quantity})
+                item["value"] = formatted_list
+            elif isinstance(current_value, list):
+                continue  # 已是列表，不处理
+            
+    return json_data
 ```
+# 修改配置
+配置项在 config/__init__.py
+GPT_URL: 可修改为OpenAI的代理地址
+API_KEY: 修改为ChatGPT的ApiKey
 
-## Integrate with your tools
+# 启动
+```bash
+python app.py
+```
+python app.py
 
-- [ ] [Set up project integrations](http://192.168.1.7:8700/yinghao/chatbot/-/settings/integrations)
+#### 可视化调试可以浏览器打开 demo/user_input.html 或 127.0.0.1:5000
 
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
