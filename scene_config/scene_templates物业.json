@@ -1,0 +1,230 @@
+{
+  "Park_property_device": {
+    "name": "园区物业助手——设备过保问题",
+    "description": "依赖数据库api的调用，而不是询问用户来进行词槽填充。通过调用外部数据，如excel等来获取各个设备的维保日期来判断该设备是否过保",
+    "parameters": [
+      {
+        "name": "设备编号",
+        "desc": "格式固定，例如:BRDC-HJCGQ-020",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "设备名称",
+        "desc": "描述设备的名称，如'4F温度传感器'，'S2-1AL5-3备用交流电稳压器'等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "位置",
+        "desc": "设备所在的地理位置，例如：'浦江科技城广场'",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "设备类型",
+        "desc": "设备的类型，如：'温度传感器','电度传感器'，'水表'等",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "设备状态",
+        "desc": "设备目前是否处于运行状态, 如：'运行中'",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "生产厂家",
+        "desc": "这个设备是由哪个厂家生产的，需要生产该设备的厂家的名称",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "设备型号",
+        "desc": "这个设备是什么型号的。非必需。不是所有设备都有型号",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "下一次维保日期",
+        "desc": "最重要的数据，用于判断该设备是否过保，日期格式：yyyy-MM-dd。如果当前日期超过维保日期，则设备过保",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "Park_property_abnormal_facilities_and_equipment": {
+    "name": "园区物业助手——有哪些异常的设施设备",
+    "description": "依赖数据库api的调用，而不是询问用户来进行词槽填充。通过调用外部数据，如excel等来获取各个设备是否存在异常的日志",
+    "parameters": [
+      {
+        "name": "设施或设备的编号",
+        "desc": "格式固定，例如:BRDC-HJCGQ-020",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "设施或设备的名称",
+        "desc": "描述设备的名称，如'4F温度传感器'，'S2-1AL5-3备用交流电稳压器'等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "设施或设备的位置",
+        "desc": "设备所在的地理位置，例如：'浦江科技城广场'",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "设施或设备是否处于异常状态",
+        "desc": "设施或设备目前是否处于异常状态, 只能是True、False",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "设施或设备的异常状态的具体描述",
+        "desc": "异常设施或设备目前所存在问题的描述，例如：'无法正常启动或运行'",
+        "type": "string",
+        "required": false
+      }
+    ]
+  },
+  "Park_property_order_tracking": {
+    "name": "园区物业助手——工单执行情况查询",
+    "description": "依赖数据库api的调用，而不是询问用户来进行词槽填充。通过调用外部数据追踪工单目前是否有被执行以及其完成进度。",
+    "parameters": [
+      {
+        "name": "工单编号",
+        "desc": "格式固定，例如:'1233387610-3-20240220-022'等，其中20240220代表日期，-022代表当天的第22个工单",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "工单名称",
+        "desc": "描述工单的工作内容，负责人以及工单执行的频率，如'空调-冷却塔巡检-技工1次/天'，'防排烟-排/送风机房巡检-技工2次/月'等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "创建时间",
+        "desc": "工单创建的具体时间，精确到某天某时某分，例如：'2024.02.20 08:00'",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "工单类型",
+        "desc": "工单属于什么类型,可以是'巡查'或者'故障'之类的",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "工单来源",
+        "desc": "这个工单产生的缘由是什么，例如：'设备警告'或者'工单计划'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "工单状态",
+        "desc": "用于标记当前的工单的任务进度，例如：'未开始'，'抢单中'或者'已结束'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "要求开始时间",
+        "desc": "这个工单所要求的开始日期，例如：'2024.02.20 11:00'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "要求完成时间",
+        "desc": "这个工单所要求的交付日期，例如：'2024.02.20 16:00'，若要求的完成时间比开始时间更早，则输出none",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "实际结束时间",
+        "desc": "这个工单实际的完成或交付日期，例如：'2024.02.20 17:00'，若要求的完成时间比开始时间更早，则输出none",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "执行人",
+        "desc": "这个工单的负责人和执行人，例如：'李某某'",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "Park_property_visitor_registration": {
+    "name": "园区物业助手——访客登记",
+    "description": "通过询问用户来进行词槽填充。当用户想要造访某个企业的时候，需要生成一个访客登记表",
+    "parameters": [
+      {
+        "name": "访客姓名",
+        "desc": "人名，例如:'王刚'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "访客身份证号",
+        "desc": "访客的中国身份证号码，例如：'331082200104281348'等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "访客手机号码",
+        "desc": "访客的11位手机号，例如：'13957951899'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "摆放企业",
+        "desc": "访客想造访的企业叫什么, 例如：'临港元企'",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "Park_property_surveillance retrieval": {
+    "name": "园区物业助手——监控视频调取",
+    "description": "通过询问用户来进行词槽填充。当用户想要调取某个时间段某一地址的监控视频时，需要通过外部接口调取对应视频的地址",
+    "parameters": [
+      {
+        "name": "监控地点",
+        "desc": "监控所在的地点位置信息，例如:'16号楼北门'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "监控时段",
+        "desc": "想要观看这个地点从几点几分开始的视频以及几点几分结束，例如：'2024.01.06 14:00-2024.01.07 02:00'代表从2024年1月六日14点到2024年1月7日凌晨2点的监控录像",
+        "type": "string",
+        "required": true
+      }
+    ]
+  },
+  "Park_property_work_order_dispatch":{
+    "name": "园区物业助手——工单派发",
+    "description": "通过询问用户来进行词槽填充。当用户想要派发工单给指定对象时，询问和收集对应的工单资料，通过外部接口生成和派发工单",
+    "parameters": [
+      {
+        "name": "工单地点",
+        "desc": "工单目标所在的地点位置信息，例如:'16号楼23层电梯厅'",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "工单内容",
+        "desc": "具体的工单内容和工作清单描述，例如：'清理工单地点的纸盒箱垃圾'等",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "工单负责人",
+        "desc": "此工单的指派对象，例如：'保洁员蔡阿姨'等",
+        "type": "string",
+        "required": true
+      }
+    ]
+  }
+}

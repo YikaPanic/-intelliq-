@@ -12,6 +12,7 @@ class ChatbotModel:
         self.scene_templates: dict = scene_templates
         self.current_purpose: str = ''
         self.processors = {}
+        self.self_intro_done = False
 
     @staticmethod
     def load_scene_processor(self, scene_config):
@@ -56,6 +57,7 @@ class ChatbotModel:
 
         if self.current_purpose:
             print(f"用户选择了场景：{self.scene_templates[self.current_purpose]['name']}")
+            return self.current_purpose
             # 这里可以继续处理其他逻辑
         else:
             # 用户输入的选项无效的情况，可以进行相应的处理
@@ -68,10 +70,38 @@ class ChatbotModel:
         scene_config = self.scene_templates.get(scene_name)
         if not scene_config:
             raise ValueError(f"未找到名为{scene_name}的场景配置")
+        
+        # Pass the scene description to the processor
+        scene_config['description'] = self.scene_templates[scene_name]['description']
 
         processor_class = self.load_scene_processor(self, scene_config)
         self.processors[scene_name] = processor_class
         return self.processors[scene_name]
+
+    # def process_multi_question(self, user_input):
+    #     """
+    #     处理多轮问答
+    #     :param user_input:
+    #     :return:
+    #     """
+    #     # 检查当前输入是否与上一次的意图场景相关
+    #     if self.is_related_to_last_intent(user_input):
+    #         pass
+    #     else:
+    #         # 不相关时，重新识别意图
+    #         self.recognize_intent(user_input)
+    #     logging.info('current_purpose: %s', self.current_purpose)
+
+    #     if self.current_purpose in self.scene_templates:
+    #         # 根据场景模板调用相应场景的处理逻辑
+    #         self.get_processor_for_scene(self.current_purpose)
+    #         # 调用抽象类process方法
+    #         return self.processors[self.current_purpose].process(user_input, None)
+    #     return '未命中场景'
+
+    def self_introduction(self):
+        intro_text = "您好,我是园区物业助理--小元,很高兴为您提供服务!作为园区物业的助理,我可以帮助您解答园区内的各类问题,包括设施设备的维护、派发工单、日常巡检、企业的服务需求、活动的组织安排等。无论您遇到什么困难或疑问,都可以随时向我咨询,我会尽力为您提供帮助。让我们一起努力,共同打造一个安全、舒适、便捷的园区环境!"
+        return intro_text
 
     def process_multi_question(self, user_input):
         """
@@ -83,7 +113,7 @@ class ChatbotModel:
         if self.is_related_to_last_intent(user_input):
             pass
         else:
-            # 不相关时，重新识别意图
+            # 不相关时,重新识别意图
             self.recognize_intent(user_input)
         logging.info('current_purpose: %s', self.current_purpose)
 
@@ -92,7 +122,10 @@ class ChatbotModel:
             self.get_processor_for_scene(self.current_purpose)
             # 调用抽象类process方法
             return self.processors[self.current_purpose].process(user_input, None)
-        return '未命中场景'
 
+        # 如果未匹配到任何场景,则检查是否需要进行自我介绍
+        if not self.self_intro_done:
+            self.self_intro_done = True
+            return self.self_introduction()
 
-
+        return '未命中场景,也无需自我介绍'

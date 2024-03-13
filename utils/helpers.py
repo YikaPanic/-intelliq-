@@ -135,32 +135,42 @@ def format_name_value_for_logging(json_data):
         log_strings.append(log_string)
     return '\n'.join(log_strings)
 
+def parse_purchase_list(purchase_str):
+    """
+    解析采购列表字符串，转换为二维数组，每个元素包含商品名称和数量。
+    """
+    # 定义正则表达式匹配商品和数量
+    pattern = re.compile(r"([\u4e00-\u9fa5]+?)\s*(\d+)\s*([支张台个批对打份盒箱]+)")
+    
+    # 查找所有匹配项
+    matches = pattern.findall(purchase_str)
+    
+    # 提取商品名称和数量
+    result = []
+    for match in matches:
+        item_name = match[0]  # 商品名称
+        quantity = match[1]  # 数量
+        result.append((item_name, int(quantity)))  # 将商品名称和数量作为元组添加到结果列表中
+    
+    return result
+
 def prepare_json_data_for_api(json_data):
     """
     修改json_data中特定条目的value格式，准备发送给API。
     """
+    updated_json_data = []  # 创建一个新的列表来存储更新后的条目
     for item in json_data:
         if item.get("name") == "采购的内容清单":
             current_value = item.get("value", "")
             if isinstance(current_value, str):
-                # 预处理，为每个商品数量后插入分隔符"; "
-                preprocessed_value = re.sub(r"(\d+)(支|张|台|个|批|对|打|份|盒|箱|)", r"\1\2; ", current_value)
-                # 分割处理后的字符串
-                items_list = preprocessed_value.split("; ")
-                formatted_list = []
-                for it in items_list:
-                    if it:  # 避免空字符串
-                        # 分割物品名称和数量
-                        match = re.match(r"(.+?)(\d+)(支|张|台|个|批|对|打|份|盒|箱)", it)
-                        if match:
-                            item_name = match.group(1).strip()
-                            quantity = f"{match.group(2).strip()}{match.group(3).strip()}"  # 包括单位
-                            formatted_list.append({"item": item_name, "quantity": quantity})
-                item["value"] = formatted_list
+                # 使用 parse_purchase_list 方法解析购买清单字符串
+                formatted_list = parse_purchase_list(current_value)
+                updated_json_data.append({"name": item["name"], "value": formatted_list})
             elif isinstance(current_value, list):
-                continue  # 已是列表，不处理
-            
-    return json_data
+                updated_json_data.append(item)  # 如果已经是列表格式，则直接添加
+        else:
+            updated_json_data.append(item)  # 添加不需要修改的条目
+    return updated_json_data
 
 # def extract_json_from_string(input_string):
 #     """
@@ -237,4 +247,3 @@ def fix_json(llm_output):
 #     except json.JSONDecodeError as e:
 #         print(f"修正后的解析错误: {e}")
 #         return []
-

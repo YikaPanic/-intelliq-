@@ -111,9 +111,9 @@ def send_tongyiqwen_message(message, user_input):
         print(f"Request error: {e}")
         return None
 
-def fetch_decision_from_api(self, slot, user_input):
+def fetch_decision_from_api(self, slot, user_input, scene_description):
         # 构建请求GPT的消息
-        message = build_api_decision_prompt(slot, user_input)
+        message = build_api_decision_prompt(slot, user_input, scene_description)
 
         # 构建请求数据
         data = {
@@ -132,7 +132,7 @@ def fetch_decision_from_api(self, slot, user_input):
 
         try:
             # 发起请求
-            response = requests.post(config.GPT_URL, headers=headers, json=data)
+            response = requests.post(config.GPT_URL, headers=headers, json=data)    
             if response.status_code == 200:
                 # 解析响应
                 answer = response.json()["choices"][0]["message"]['content'].strip()
@@ -150,9 +150,9 @@ def fetch_decision_from_api(self, slot, user_input):
             print(f"Request error: {e}")
             return "request_error"
         
-def build_api_decision_prompt(slot, user_input):
+def build_api_decision_prompt(slot, user_input, scene_description):
     """
     构建用于询问GPT是否应该询问用户或调用API的提示
     """
-    prompt = f"Given the current conversation context and the following slot information: {json.dumps(slot, ensure_ascii=False)}, with the user's last input being: '{user_input}', should the next action be to 'ask_user' for more information or 'call_api' to automatically fill the missing slot data? Please respond with either 'ask_user' or 'call_api' only."
+    prompt = f"Given the current conversation context, the scene description '{scene_description}', and the following slot information: {json.dumps(slot, ensure_ascii=False)}, with the user's last input being: '{user_input}', should the next action be to 'ask_user' for more information or 'call_api' to automatically fill the missing slot data? Please respond with either 'ask_user' or 'call_api' only."
     return prompt
