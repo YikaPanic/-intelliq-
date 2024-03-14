@@ -8,7 +8,7 @@ from utils.helpers import get_raw_slot, update_slot, format_name_value_for_loggi
     extract_json_from_string, get_dynamic_example
 from utils.prompt_utils import get_slot_update_message, get_slot_query_user_message
 from utils.send_llm import fetch_decision_from_api
-
+from scene_processor.impl.after_slot_processor import AfterSlotProcessor
 
 class CommonProcessor(SceneProcessor):
     def __init__(self, scene_config):
@@ -47,11 +47,29 @@ class CommonProcessor(SceneProcessor):
                 return "无法确定下一步行动，请手动检查数据。"
 
     def respond_with_complete_data(self):
+        after_slot_processor = AfterSlotProcessor(self.slot)
         # 当所有数据都准备好后的响应
         logging.debug(f'%s ------ 参数已完整，详细参数如下', self.scene_name)
         logging.debug(format_name_value_for_logging(self.slot))
         logging.debug(f'正在请求%sAPI，请稍后……', self.scene_name)
-        return format_name_value_for_logging(self.slot) + '\n正在请求{}API，请稍后……'.format(self.scene_name)
+        
+        # 根据场景调用相应的方法
+        if self.scene_name == "Park_property_device":
+            result = after_slot_processor.process_park_property_device()
+        elif self.scene_name == "Park_property_abnormal_facilities_and_equipment":
+            result = after_slot_processor.process_park_property_abnormal_facilities_and_equipment()
+        elif self.scene_name == "Park_property_order_tracking":
+            result = after_slot_processor.process_park_property_order_tracking()
+        elif self.scene_name == "Park_property_visitor_registration":
+            result = after_slot_processor.process_park_property_visitor_registration()
+        elif self.scene_name == "Park_property_surveillance_retrieval":
+            result = after_slot_processor.process_park_property_surveillance_retrieval()
+        elif self.scene_name == "Park_property_work_order_dispatch":
+            result = after_slot_processor.process_park_property_work_order_dispatch()
+        else:
+            result = "未找到对应的处理方法"
+        return result    
+        ## return format_name_value_for_logging(self.slot) + '\n正在请求{}API，请稍后……'.format(self.scene_name)
 
     def ask_user_for_missing_data(self, user_input):
         message = get_slot_query_user_message(self.scene_name, self.slot, user_input)
