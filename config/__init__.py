@@ -8,7 +8,7 @@ USE_MODEL = 'chatGPT'  # 「chatGPT， Qwen， tongyiQwen」
 
 # OpenAI https://api.openai.com/v1/chat/completions
 GPT_URL = 'https://api.openai.com/v1/chat/completions'
-API_KEY = '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'
+API_KEY = ''
 
 # Qwen
 Qwen_URL = 'https://www.your-local-Qwenurl/'
