@@ -49,63 +49,63 @@
       }
     ]
   },
-  "fund_consultation": {
-    "name": "公积金咨询",
-    "description": "公积金咨询",
+
+  "conference_query": {
+    "name": "客户会议预订",
+    "description": "客户会议预订，用户描述预订相关的信息，帮助用户预约会议，如我需要预订星期天早上8点的十人会议室,slot应该交给用户自己填写，而不是请求外部api",
     "parameters": [
       {
-        "name": "事件",
-        "desc": "买房、租房、退休",
+        "name": "会议预订的具体时间",
+        "desc": "具体时间，条件限制为从11:00到18:00之间的每个整点和半点，得到用户信息后你最终需要将数据改写成20xx/xx/xx xx:xx的格式，但是请不要要求用户按这样的方式填写，你应该自己处理数据格式",
         "type": "string",
         "required": true
       },
       {
-        "name": "购买房屋类型",
-        "desc": "买房事件时需要 经济适用房、新房、二手房",
+        "name": "会议结束时间",
+        "desc": "会议结束的时间，和会议预订的具体时间一样，需要将数据改写成20xx/xx/xx xx:xx的格式，但是请不要要求用户按这样的方式填写，你应该自己处理数据格式",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "会议主题",
+        "desc": "会议要讨论的问题，格式：从'财务'、'项目'。'需求'中选择一个",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "会议名称",
+        "desc": "会议的名称，注意，会议名称不是会议主题，不要搞错了，如：第三季度财务报告会、商汤科技人工智能开发项目会议等",
         "type": "string",
         "required": true
       }
     ]
   },
-
-  "SKU_query": {
-    "name": "客户集采下单",
-    "description": "集采需求用户描述采购需求，发起采购，如我需要便宜的铅笔20支，A4纸7打,slot应该交给用户自己填写，而不是请求外部api",
+  "order_query":{
+    "name": "会议订餐预约",
+    "description":"客户预订会议室后，预订会议室的午餐或晚餐，用户描述预订相关的信息，帮助用户预订午餐或晚餐，如我需要预订星期天中午的午餐，slot应该交给用户自己填写，而不是请求外部api",
     "parameters": [
       {
-        "name": "采购发起的日期",
-        "desc": "具体时间，可以是20xx/xx/xx的格式",
+        "name": "预订的具体时间",
+        "desc": "具体时间，可以是20xx/xx/xx/xx:xx的格式",
         "type": "string",
         "required": true
       },
       {
-        "name": "采购的内容清单",
-        "desc": "一个包含采购内容的列表，每个项目包含采购的对象和数量，严格按照格式：'采购物品名称+采集物品的数量'",
+        "name": "预订的午餐或晚餐",
+        "desc": "预订午餐或晚餐，如：午餐、晚餐",
         "type": "string",
         "required": true
       },
       {
-        "name": "预算范围",
-        "desc": "采购的总预算范围，可以是一个固定数值或一个范围",
+        "name": "预订人的姓名",
+        "desc": "预订午餐或晚餐的人的姓名，格式：纯文本",
         "type": "string",
         "required": false
       },
       {
-        "name": "优先级",
-        "desc": "采购物品的优先级，如：高、中、低",
-        "type": "string",
-        "required": false
-      },
-      {
-        "name": "供应商偏好",
-        "desc": "对供应商的特定偏好，如：本地供应商、具有特定认证的供应商等",
-        "type": "string",
-        "required": false
-      },
-      {
-        "name": "交付日期",
-        "desc": "期望的采购物品交付日期，格式：20xx/xx/xx",
-        "type": "string",
+        "name": "预订人的电话",
+        "desc": "预订午餐或晚餐人的电话号码，格式：纯数字",
+        "type": "int",
         "required": false
       }
     ]

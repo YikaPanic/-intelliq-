@@ -13,7 +13,46 @@ class ChatbotModel:
         self.current_purpose: str = ''
         self.processors = {}
         self.self_intro_done = False
+        self.slots = {
+            "meetingName": None,
+            "reserveEndTime": None,
+            "reserveStartTime": None,
+            "theme": None
+        }
 
+    def process_slot_update(self, question):
+        # 检查当前输入是否与上一次的意图场景相关
+        if self.is_related_to_last_intent(question):
+            pass
+        else:
+            # 不相关时,重新识别意图
+            self.recognize_intent(question)
+        logging.info('current_purpose: %s', self.current_purpose)
+
+        if self.current_purpose in self.scene_templates:
+            # 根据场景模板调用相应场景的处理逻辑
+            self.get_processor_for_scene(self.current_purpose)
+            # 调用抽象类process方法
+            return self.processors[self.current_purpose].process_slot(question, None)
+
+        # 如果未匹配到任何场景,则检查是否需要进行自我介绍
+        if not self.self_intro_done:
+            self.self_intro_done = True
+            return self.self_introduction()
+
+        return '未命中场景,也无需自我介绍'
+
+    
+    def update_slot(self, new_values):
+        for item in new_values:
+            name = item['name']
+            value = item['value']
+            if name in self.slots:
+                self.slots[name] = value if value else 'none'
+    
+    def is_slot_fully_filled(self):
+        return all(self.slots[key] is not None for key in self.slots)
+    
     @staticmethod
     def load_scene_processor(self, scene_config):
         try:
@@ -100,7 +139,7 @@ class ChatbotModel:
     #     return '未命中场景'
 
     def self_introduction(self):
-        intro_text = "您好,我是园区物业助理--小元,很高兴为您提供服务!作为园区物业的助理,我可以帮助您解答园区内的各类问题,包括设施设备的维护、派发工单、日常巡检、企业的服务需求、活动的组织安排等。无论您遇到什么困难或疑问,都可以随时向我咨询,我会尽力为您提供帮助。让我们一起努力,共同打造一个安全、舒适、便捷的园区环境!"
+        intro_text = "您好,我是会议助理--小元,很高兴为您提供服务!作为园区会议预约及服务的助理,我可以帮助您解答有关会议的各类问题,包括会议预约，会议查询和会议订餐等服务需求。无论您遇到什么困难或疑问,都可以随时向我咨询,我会尽力为您提供帮助。"
         return intro_text
 
     def process_multi_question(self, user_input):
