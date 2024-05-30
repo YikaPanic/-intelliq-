@@ -27,7 +27,7 @@ class CommonProcessor(SceneProcessor):
         self.slot_dynamic_example = get_dynamic_example(scene_config)
         self.slot = get_raw_slot(parameters)
         self.scene_prompts = scene_prompts
-        # 新增数据结构存放当前需要的JSON输出信息
+        # 数据结构存放当前需要的JSON输出信息
         self.meeting_info = {
             "meetingName": "",
             "reserveEndTime": None,

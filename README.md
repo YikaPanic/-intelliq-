@@ -13,6 +13,31 @@ IntelliQ 是一个开源项目，旨在提供一个基于大型语言模型（LL
 5. 自适应学习：不断学习用户交互，优化回答准确性和响应速度。
 6. 易于集成：提供了详细的API文档，支持多种编程语言和平台集成。
 
+## api接口调用：
+```python
+@app.route('/multi_question', methods=['POST'])
+def api_multi_question():
+    data = request.json
+    question = data.get('question')
+    if not question:
+        return jsonify({"error": "No question provided"}), 400
+
+    response = chatbot_model.process_multi_question(question)
+    return jsonify({"answer": response})
+
+@app.route('/update_slots', methods=['POST'])
+def api_update_slots():
+    data = request.json
+    question = data.get('question')
+    if not question:
+        return jsonify({"error": "No question provided"}), 400
+
+    response = chatbot_model.process_slot_update(question)
+    return jsonify(response)
+```
+
+
+
 ## 针对当前集采场景下的chatbot的定制
 
 ### 主要自定义模块：
@@ -22,6 +47,14 @@ IntelliQ 是一个开源项目，旨在提供一个基于大型语言模型（LL
 - scene_config\\scene_templates.py
 
 定义具体的对话场景，通过描述让ai自动识别对应场景来触发填槽任务，引导用户完成对应场景下所有slot的填写
+![alt text](image-2.png)
+- chatbot_model.py
+
+★★这个文件定义了我们的机器人应该如何通过对话来识别当前所处的场景以及如何进一步调用各种处理模式。这应该是你了解项目的起点
+
+- common_processor.py
+
+★★★这个文件定义ai处理模式，包含读取用户输入和补充词槽的逻辑，这是项目最核心的部分，定义了具体的业务操作逻辑，目前的操作是根据元企会议预约服务的特殊构造。如果有后续需求，可考虑扩展和重写这里的函数，使用策略模式来定义多种类型的processor
 
 ### LLM输出处理和数据抽参与整合相关的调整
 - utils\\helpers.py
