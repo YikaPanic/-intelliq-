@@ -11,129 +11,151 @@ class AfterSlotProcessor:
         self.slot_data = slot_data
 
     def process_park_property_device(self) -> str:
-        """处理园区设备过保问题"""
-        # 假设从外部 API 获取设备数据
+        """Process park device warranty issues
+        園区設備の保証期限問題を処理する"""
+        # Assume fetching device data from external API
+        # 外部APIからデバイスデータを取得すると仮定
         device_data = self._fetch_device_data(self.slot_data)
 
-        # 检查设备是否过保
+        # Check if device warranty is expired
+        # デバイスの保証期限が切れているかチェック
         is_overdue = self._check_device_overdue(device_data)
 
         if is_overdue:
-            return f"设备 {device_data['设备名称']} (编号 {device_data['设备编号']}) 已过保,下一次维保日期为 {device_data['下一次维保日期']}"
+            return f"Device {device_data['device_name']} (ID {device_data['device_id']}) warranty expired, next maintenance date: {device_data['next_maintenance_date']}"
         else:
-            return f"设备 {device_data['设备名称']} (编号 {device_data['设备编号']}) 未过保,下一次维保日期为 {device_data['下一次维保日期']}"
+            return f"Device {device_data['device_name']} (ID {device_data['device_id']}) warranty valid, next maintenance date: {device_data['next_maintenance_date']}"
 
     def process_park_property_abnormal_facilities_and_equipment(self) -> str:
-        """处理园区异常设施设备"""
-        # 假设从外部 API 获取设施设备数据
+        """Process abnormal park facilities and equipment
+        園区の異常な施設と設備を処理する"""
+        # Assume fetching facility data from external API
+        # 外部APIから施設データを取得すると仮定
         facility_data = self._fetch_facility_data(self.slot_data)
 
-        if facility_data['设施或设备是否处于异常状态']:
-            return f"设施/设备 {facility_data['设施或设备的名称']} (编号 {facility_data['设施或设备的编号']}) 处于异常状态: {facility_data['设施或设备的异常状态的具体描述']}"
+        if facility_data['is_facility_abnormal']:
+            return f"Facility/Equipment {facility_data['facility_name']} (ID {facility_data['facility_id']}) is abnormal: {facility_data['abnormal_description']}"
         else:
-            return f"设施/设备 {facility_data['设施或设备的名称']} (编号 {facility_data['设施或设备的编号']}) 运行正常"
+            return f"Facility/Equipment {facility_data['facility_name']} (ID {facility_data['facility_id']}) is operating normally"
 
     def process_park_property_order_tracking(self) -> str:
-        """处理园区工单执行情况查询"""
-        # 假设从外部 API 获取工单数据
+        """Process park work order execution query
+        園区の工單実行状況照会を処理する"""
+        # Assume fetching order data from external API
+        # 外部APIから工單データを取得すると仮定
         order_data = self._fetch_order_data(self.slot_data)
 
-        return f"工单 {order_data['工单编号']} ({order_data['工单名称']}) 状态: {order_data['工单状态']}\n" \
-               f"创建时间: {order_data['创建时间']}\n" \
-               f"要求开始时间: {order_data['要求开始时间']}\n" \
-               f"要求完成时间: {order_data['要求完成时间']}\n" \
-               f"实际结束时间: {order_data['实际结束时间']}\n" \
-               f"执行人: {order_data['执行人']}"
+        return f"Work order {order_data['work_order_id']} ({order_data['work_order_name']}) status: {order_data['work_order_status']}\n" \
+               f"Created time: {order_data['created_time']}\n" \
+               f"Required start time: {order_data['required_start_time']}\n" \
+               f"Required completion time: {order_data['required_completion_time']}\n" \
+               f"Actual completion time: {order_data['actual_completion_time']}\n" \
+               f"Executor: {order_data['executor']}"
 
     def process_park_property_visitor_registration(self) -> str:
-        """处理园区访客登记"""
+        """Process park visitor registration
+        園区の訪問者登録を処理する"""
         visitor_data = self.slot_data
-        return f"访客登记表\n" \
-               f"姓名: {visitor_data['访客姓名']}\n" \
-               f"身份证号: {visitor_data['访客身份证号']}\n" \
-               f"手机号码: {visitor_data['访客手机号码']}\n" \
-               f"拜访企业: {visitor_data['摆放企业']}"
+        return f"Visitor registration form\n" \
+               f"Name: {visitor_data['visitor_name']}\n" \
+               f"ID number: {visitor_data['visitor_id_number']}\n" \
+               f"Phone number: {visitor_data['visitor_phone_number']}\n" \
+               f"Visiting company: {visitor_data['visiting_company']}"
 
     def process_park_property_surveillance_retrieval(self) -> str:
-        """处理园区监控视频调取"""
-        # 假设从外部 API 获取监控视频数据
+        """Process park surveillance video retrieval
+        園区の監視カメラ映像取得を処理する"""
+        # Assume fetching surveillance video data from external API
+        # 外部APIから監視カメラ映像データを取得すると仮定
         video_data = self._fetch_surveillance_video(self.slot_data)
 
-        # 保存视频文件
+        # Save video file
+        # 映像ファイルを保存する
         video_path = self._save_video_file(video_data)
 
-        return f"监控录像已就绪,可以通过以下链接访问: {video_path}"
+        return f"Surveillance video is ready, you can access it via the following link: {video_path}"
 
     def process_park_property_work_order_dispatch(self) -> str:
-        """处理园区工单派发"""
-        # 假设从外部 API 获取工单派发结果
+        """Process park work order dispatch
+        園区の工單派遣を処理する"""
+        # Assume fetching work order dispatch result from external API
+        # 外部APIから工單派遣結果を取得すると仮定
         dispatch_result = self._dispatch_work_order(self.slot_data)
 
-        return f"工单 {dispatch_result['工单编号']} 已成功派发给 {dispatch_result['工单负责人']}"
+        return f"Work order {dispatch_result['work_order_id']} has been successfully dispatched to {dispatch_result['work_order_manager']}"
 
     def _fetch_device_data(self, slot_data) -> Dict:
-        """模拟从外部 API 获取设备数据"""
-        # 这里应该调用真实的 API 端点并获取数据
-        # 为了示例,只返回一个模拟的数据字典
+        """Mock fetching device data from external API
+        外部APIからのデバイスデータ取得をモック"""
+        # Should call actual API endpoint to get data
+        # 実際のAPIエンドポイントを呼び出してデータを取得する必要がある
         return {
-            "设备编号": slot_data["设备编号"],
-            "设备名称": slot_data["设备名称"],
-            "下一次维保日期": "2023-08-15"
+            "device_id": slot_data["device_id"],
+            "device_name": slot_data["device_name"],
+            "next_maintenance_date": "2023-08-15"
         }
 
     def _check_device_overdue(self, device_data) -> bool:
-        """检查设备是否过保"""
-        maintenance_date = datetime.strptime(device_data["下一次维保日期"], "%Y-%m-%d").date()
+        """Check if device warranty is expired
+        デバイスの保証期限が切れているかチェック"""
+        maintenance_date = datetime.strptime(device_data["next_maintenance_date"], "%Y-%m-%d").date()
         today = datetime.now().date()
         return today > maintenance_date
 
     def _fetch_facility_data(self, slot_data) -> Dict:
-        """模拟从外部 API 获取设施设备数据"""
-        # 这里应该调用真实的 API 端点并获取数据
-        # 为了示例,只返回一个模拟的数据字典
+        """Mock fetching facility data from external API
+        外部APIからの施設データ取得をモック"""
+        # Should call actual API endpoint to get data
+        # 実際のAPIエンドポイントを呼び出してデータを取得する必要がある
         return {
-            "设施或设备的编号": slot_data["设施或设备的编号"],
-            "设施或设备的名称": slot_data["设施或设备的名称"],
-            "设施或设备是否处于异常状态": True,
-            "设施或设备的异常状态的具体描述": "无法正常启动"
+            "facility_id": slot_data["facility_id"],
+            "facility_name": slot_data["facility_name"],
+            "is_facility_abnormal": True,
+            "abnormal_description": "Unable to start normally"
         }
 
     def _fetch_order_data(self, slot_data) -> Dict:
-        """模拟从外部 API 获取工单数据"""
-        # 这里应该调用真实的 API 端点并获取数据
-        # 为了示例,只返回一个模拟的数据字典
+        """Mock fetching order data from external API
+        外部APIからの工單データ取得をモック"""
+        # Should call actual API endpoint to get data
+        # 実際のAPIエンドポイントを呼び出してデータを取得する必要がある
         return {
-            "工单编号": slot_data["工单编号"],
-            "工单名称": slot_data["工单名称"],
-            "创建时间": "2023-05-01 08:00",
-            "工单类型": slot_data["工单类型"],
-            "工单来源": slot_data["工单来源"],
-            "工单状态": slot_data["工单状态"],
-            "要求开始时间": slot_data["要求开始时间"],
-            "要求完成时间": slot_data["要求完成时间"],
-            "实际结束时间": slot_data["实际结束时间"],
-            "执行人": slot_data["执行人"]
+            "work_order_id": slot_data["work_order_id"],
+            "work_order_name": slot_data["work_order_name"],
+            "created_time": "2023-05-01 08:00",
+            "work_order_type": slot_data["work_order_type"],
+            "work_order_source": slot_data["work_order_source"],
+            "work_order_status": slot_data["work_order_status"],
+            "required_start_time": slot_data["required_start_time"],
+            "required_completion_time": slot_data["required_completion_time"],
+            "actual_completion_time": slot_data["actual_completion_time"],
+            "executor": slot_data["executor"]
         }
 
     def _fetch_surveillance_video(self, slot_data) -> bytes:
-        """模拟从外部 API 获取监控视频数据"""
-        # 这里应该调用真实的 API 端点并获取视频数据
-        # 为了示例,只返回一个模拟的视频数据
+        """Mock fetching surveillance video data from external API
+        外部APIからの監視カメラ映像データ取得をモック"""
+        # Should call actual API endpoint to get video data
+        # 実際のAPIエンドポイントを呼び出して映像データを取得する必要がある
+        # ここではモックデータを返す
         video_data = b"THIS IS A MOCK VIDEO DATA"
         return video_data
 
     def _save_video_file(self, video_data: bytes) -> str:
-        """保存视频文件到临时位置"""
+        """Save video file to temporary location
+        映像ファイルを一時的な場所に保存する"""
         video_path = os.path.join(os.path.dirname(__file__), "tmp_video.mp4")
         with open(video_path, "wb") as f:
             f.write(video_data)
         return video_path
 
     def _dispatch_work_order(self, slot_data) -> Dict:
-        """模拟向外部 API 派发工单"""
-        # 这里应该调用真实的 API 端点并派发工单
-        # 为了示例,只返回一个模拟的派发结果
+        """Mock dispatching work order to external API
+        外部APIに工單派遣をモック"""
+        # Should call actual API endpoint to dispatch work order
+        # 実際のAPIエンドポイントを呼び出して工單派遣を行う必要がある
+        # ここではモックの派遣結果を返す
         return {
-            "工单编号": "1234567890",
-            "工单负责人": slot_data["工单负责人"]
+            "work_order_id": "1234567890",
+            "work_order_manager": slot_data["work_order_manager"]
         }

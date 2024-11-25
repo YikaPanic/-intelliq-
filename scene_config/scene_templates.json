@@ -1,18 +1,18 @@
 {
   "weather_query": {
-    "name": "问天气",
-    "description": "天气信息查询服务",
-    "example": "JSON：[{'name': 'date', 'desc': '查天气的具体日期。时间格式：yyyy-MM-dd', 'value': ''}]\n输入：我想要23年5月1日的天气\n答：{'name': 'date', 'value': '2023-05-01'}",
+    "name": "Weather Inquiry",
+    "description": "Weather information query service",
+    "example": "JSON：[{'name': 'date', 'desc': 'Specific date for weather inquiry. Date format: yyyy-MM-dd', 'value': ''}]\nInput: I want the weather for May 1, 2023\nAnswer: {'name': 'date', 'value': '2023-05-01'}",
     "parameters": [
       {
         "name": "date",
-        "desc": "查天气的具体日期。时间格式：yyyy-MM-dd",
+        "desc": "Specific date for weather inquiry. Date format: yyyy-MM-dd",
         "type": "string",
         "required": true
       },
       {
         "name": "location",
-        "desc": "查天气的城市或地点",
+        "desc": "City or location for weather inquiry",
         "type": "string",
         "required": true
       }
@@ -20,30 +20,30 @@
   },
   
   "hotel_booking": {
-    "name": "订酒店",
-    "description": "订酒店的服务",
+    "name": "Hotel Booking",
+    "description": "Hotel booking service",
     "parameters": [
       {
-        "name": "入住地点",
-        "desc": "酒店的具体位置，可以是城市、地区等",
+        "name": "Check-in Location",
+        "desc": "Specific location of the hotel, can be a city, region, etc.",
         "type": "string",
         "required": true
       },
       {
-        "name": "入住开始日期",
-        "desc": "入住酒店的开始日期，日期格式：yyyy-MM-dd",
+        "name": "Check-in Start Date",
+        "desc": "Start date for hotel check-in, date format: yyyy-MM-dd",
         "type": "string",
         "required": true
       },
       {
-        "name": "入住结束日期",
-        "desc": "入住酒店的结束日期，日期格式：yyyy-MM-dd",
+        "name": "Check-in End Date",
+        "desc": "End date for hotel check-in, date format: yyyy-MM-dd",
         "type": "string",
         "required": true
       },
       {
-        "name": "酒店档次",
-        "desc": "酒店的档次，如豪华、经济等",
+        "name": "Hotel Grade",
+        "desc": "Grade of the hotel, such as luxury, economy, etc.",
         "type": "string",
         "required": true
       }
@@ -51,60 +51,72 @@
   },
 
   "conference_query": {
-    "name": "客户会议预订",
-    "description": "客户会议预订，用户描述预订相关的信息，帮助用户预约会议，如我需要预订星期天早上8点的十人会议室,slot应该交给用户自己填写，而不是请求外部api",
+    "name": "Client Meeting Booking",
+    "description": "Client meeting booking, users describe booking-related information to help book meetings, such as needing a ten-person meeting room at 8 AM on Sunday. Slots should be filled by the user, not by requesting an external API.",
     "parameters": [
       {
-        "name": "会议预订的具体时间",
-        "desc": "具体时间，条件限制为从11:00到18:00之间的每个整点和半点，得到用户信息后你最终需要将数据改写成20xx/xx/xx xx:xx的格式，但是请不要要求用户按这样的方式填写，你应该自己处理数据格式",
+        "name": "Specific Time for Meeting Booking",
+        "desc": "Specific time for meeting booking. change user's answer to the time in the format yyyy/MM/dd HH:mm.",
         "type": "string",
         "required": true
       },
       {
-        "name": "会议结束时间",
-        "desc": "会议结束的时间，和会议预订的具体时间一样，需要将数据改写成20xx/xx/xx xx:xx的格式，但是请不要要求用户按这样的方式填写，你应该自己处理数据格式",
+        "name": "Meeting Duration",
+        "desc": "Duration of the meeting. Please let user choose from 'half an hour', '1 hour', or '2 hours'.",
         "type": "string",
         "required": true
       },
       {
-        "name": "会议主题",
-        "desc": "会议要讨论的问题，格式：从'财务'、'项目'。'需求'中选择一个。注意你必须假定这是个枚举类型的数据，你只能从这三个主题中选择一个，而不是根据用户输入来获取可能的主题。如果用户没有提供任何与会议内容相关的信息也没有明确告知会议的主题，则此处留空字符串",
+        "name": "Meeting Theme",
+        "desc": "Topics to be discussed in the meeting, format: choose one from 'Finance', 'Project', 'Requirement'. Note that you must assume this is an enumerated type of data, you can only choose one of these three themes, not derive possible themes from user input. If the user does not provide any information related to the meeting content or explicitly state the meeting theme, leave this as an empty string.",
         "type": "string",
         "required": true
       },
       {
-        "name": "会议名称",
-        "desc": "会议的名称，注意，会议名称不是会议主题，不要搞错了，如：第三季度财务报告会、商汤科技人工智能开发项目会议等。如果用户没有明确说明会议名称是什么，则你可以通过用户的开会目的等角度分析和推理出一个合适的名称，如果用户没有提供任何跟会议内容有关的信息，则此空留空字符串。",
+        "name": "Meeting Name",
+        "desc": "Name of the meeting, note that the meeting name is not the meeting theme, do not confuse them, e.g., Third Quarter Financial Report Meeting, SenseTime AI Development Project Meeting, etc. If the user does not explicitly state what the meeting name is, you can analyze and infer a suitable name from the user's meeting purpose, etc. If the user does not provide any information related to the meeting content, leave this as an empty string.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "Meeting Booker",
+        "desc": "The Booker of the meeting, a full name of the booker e.g., Jie Li, Xiaoming Wang, etc.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "Number of participants",
+        "desc": "The number of people attending the meeting is mainly to make the most efficient use of the meeting room space. Do not ask user to answer in a specific form, but yourself should change user's answer format to a string of Arabic numerals.",
         "type": "string",
         "required": true
       }
     ]
   },
-  "order_query":{
-    "name": "会议订餐预约",
-    "description":"客户预订会议室后，预订会议室的午餐或晚餐，用户描述预订相关的信息，帮助用户预订午餐或晚餐，如我需要预订星期天中午的午餐，slot应该交给用户自己填写，而不是请求外部api",
+  "order_query": {
+    "name": "Meeting Meal Booking",
+    "description": "After booking a meeting room, book lunch or dinner for the meeting room. Users describe booking-related information to help book lunch or dinner, such as needing to book lunch on Sunday. Slots should be filled by the user, not by requesting an external API.",
     "parameters": [
       {
-        "name": "预订的具体时间",
-        "desc": "具体时间，可以是20xx/xx/xx/xx:xx的格式",
+        "name": "Specific Time for Booking",
+        "desc": "Specific time for booking. Please provide the time in the format yyyy/MM/dd HH:mm.",
         "type": "string",
         "required": true
       },
       {
-        "name": "预订的午餐或晚餐",
-        "desc": "预订午餐或晚餐，如：午餐、晚餐",
+        "name": "Booking Lunch or Dinner",
+        "desc": "Book lunch or dinner, e.g., lunch, dinner",
         "type": "string",
         "required": true
       },
       {
-        "name": "预订人的姓名",
-        "desc": "预订午餐或晚餐的人的姓名，格式：纯文本",
+        "name": "Name of the Booker",
+        "desc": "Name of the person booking lunch or dinner, format: plain text",
         "type": "string",
         "required": false
       },
       {
-        "name": "预订人的电话",
-        "desc": "预订午餐或晚餐人的电话号码，格式：纯数字",
+        "name": "Phone Number of the Booker",
+        "desc": "Phone number of the person booking lunch or dinner, format: plain numbers",
         "type": "int",
         "required": false
       }
